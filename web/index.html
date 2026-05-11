@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Go + SQLite Todo</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; text-align: center; }
+        div { margin-top: 20px; padding: 10px; border: 1px solid #ddd; display: inline-block; }
+    </style>
+	<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+
+    <h1>Todo Manager</h1>
+    <button onclick="fetchTodos()">Get Todos from SQLite</button>
+    <div id="output">
+        <p>Results will appear here...</p>
+    </div>
+
+    <button onclick="addTodo()">Add Todo with SQLite</button>
+    <div id="input">
+		<input type="text" placeholder="Type something...">
+    </div>
+
+    <script>
+        async function fetchTodos() {
+            const outputDiv = document.getElementById('output');
+			const text = outputDiv.querySelector('#output p');
+			text.textContent = "Loading...";
+
+            try {
+                const response = await fetch('/todos');
+                const data = await response.json();
+
+                if (!data || data.length === 0) {
+                    text.textContent = "Database is empty!";
+                } else {
+                    text.textContent = JSON.stringify(data);
+                }
+            } catch (err) {
+                text.textContent = "Error: " + err;
+            }
+        }
+
+        async function addTodo() {
+			const inputDiv = document.getElementById("input");
+			const text = inputDiv.querySelector("input");
+			const val = text.value;
+			if(val === null) val = " ";
+            text.placeholder = "Loading...";
+
+            try {
+                const response = await fetch('http://localhost:8080/submit', {
+					method: 'POST',
+					headers: {
+					  'Content-Type': 'application/json',
+					},
+					// Wrap the string in an object
+					body: JSON.stringify({ val }),
+  				});
+				const data = await response.json();
+
+                if (!data || data.length === 0) {
+                    text.placeholder = "Error";
+                } else {
+                    text.placeholder = JSON.stringify(data);
+                }
+            } catch (err) {
+                text.placeholder = "Error: " + err;
+            }
+        }
+    </script>
+</body>
+</html>
